@@ -1,0 +1,38 @@
+{
+    "name": "personal-galaxy/files",
+    "type": "library",
+    "description": "Model to store files",
+    "keywords": [],
+    "homepage": "http://github.com/PersonalGalaxy/Files",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Baptiste Langlade",
+            "email": "langlade.baptiste@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "http://github.com/PersonalGalaxy/Files/issues"
+    },
+    "require": {
+        "php": "~7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "PersonalGalaxy\\Files\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\PersonalGalaxy\\Files\\": "tests/",
+            "Fixture\\PersonalGalaxy\\Files\\": "fixtures/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.0",
+        "giorgiosironi/eris": "^0.9.0"
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit --colors=always"
+    }
+}
