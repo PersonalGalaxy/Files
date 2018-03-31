@@ -20,7 +20,7 @@ final class FileFolder implements ComparatorInterface
         $this->value = (string) $identity;
     }
 
-     /**
+    /**
      * {@inheritdoc}
      */
     public function property(): string

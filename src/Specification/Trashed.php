@@ -12,7 +12,7 @@ use Innmind\Specification\{
 
 final class Trashed implements ComparatorInterface
 {
-     /**
+    /**
      * {@inheritdoc}
      */
     public function property(): string
