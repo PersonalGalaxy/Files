@@ -11,6 +11,7 @@ use PersonalGalaxy\Files\{
     Event\FolderWasRestored,
     Event\FolderWasRemoved,
     Event\FolderWasRenamed,
+    Event\FolderWasMovedToADifferentParent,
 };
 use Innmind\EventBus\{
     ContainsRecordedEventsInterface,
@@ -75,6 +76,18 @@ final class Folder implements ContainsRecordedEventsInterface
 
         $this->name = $name;
         $this->record(new FolderWasRenamed($this->identity, $name));
+
+        return $this;
+    }
+
+    public function moveTo(Identity $parent): self
+    {
+        if ($parent->equals($this->parent)) {
+            return $this;
+        }
+
+        $this->parent = $parent;
+        $this->record(new FolderWasMovedToADifferentParent($this->identity, $parent));
 
         return $this;
     }

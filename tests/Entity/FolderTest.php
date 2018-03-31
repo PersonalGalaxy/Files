@@ -12,6 +12,7 @@ use PersonalGalaxy\Files\{
     Event\FolderWasTrashed,
     Event\FolderWasRestored,
     Event\FolderWasRemoved,
+    Event\FolderWasMovedToADifferentParent,
 };
 use Innmind\EventBus\ContainsRecordedEventsInterface;
 use PHPUnit\Framework\TestCase;
@@ -58,6 +59,40 @@ class FolderTest extends TestCase
         //verify nothing happens when renaming with the same name
         $this->assertSame($folder, $folder->rename(new Name('bar')));
         $this->assertSame($bar, $folder->name());
+        $this->assertCount(2, $folder->recordedEvents());
+    }
+
+    public function testMoveTo()
+    {
+        $folder = Folder::add(
+            $identity = $this->createMock(Identity::class),
+            new Name('foo'),
+            $this->createMock(Identity::class)
+        );
+
+        $parent = $this->createMock(Identity::class);
+        $parent
+            ->expects($this->once())
+            ->method('equals')
+            ->with($folder->parent())
+            ->willReturn(false);
+        $this->assertSame($folder, $folder->moveTo($parent));
+        $this->assertSame($parent, $folder->parent());
+        $this->assertCount(2, $folder->recordedEvents());
+        $event = $folder->recordedEvents()->last();
+        $this->assertInstanceOf(FolderWasMovedToADifferentParent::class, $event);
+        $this->assertSame($identity, $event->identity());
+        $this->assertSame($parent, $event->parent());
+
+        //verify nothing happens when renaming with the same name
+        $other = $this->createMock(Identity::class);
+        $other
+            ->expects($this->once())
+            ->method('equals')
+            ->with($parent)
+            ->willReturn(true);
+        $this->assertSame($folder, $folder->moveTo($other));
+        $this->assertSame($parent, $folder->parent());
         $this->assertCount(2, $folder->recordedEvents());
     }
 
