@@ -13,7 +13,7 @@ use PersonalGalaxy\Files\{
 final class MoveFileHandler
 {
     private $files;
-    private $folder;
+    private $folders;
 
     public function __construct(
         FileRepository $files,
