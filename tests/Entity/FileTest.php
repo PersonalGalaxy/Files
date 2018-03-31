@@ -13,6 +13,7 @@ use PersonalGalaxy\Files\{
     Event\FileWasRestored,
     Event\FileWasRemoved,
     Event\FileWasRenamed,
+    Event\FileWasMovedToADifferentFolder,
 };
 use Innmind\Filesystem\MediaType;
 use Innmind\EventBus\ContainsRecordedEventsInterface;
@@ -64,6 +65,41 @@ class FileTest extends TestCase
         //verify nothing happens when renaming with the same name
         $this->assertSame($file, $file->rename(new Name('bar')));
         $this->assertSame($bar, $file->name());
+        $this->assertCount(2, $file->recordedEvents());
+    }
+
+    public function testMoveTo()
+    {
+        $file = File::add(
+            $identity = $this->createMock(Identity::class),
+            new Name('foo'),
+            $this->createMock(Folder::class),
+            $this->createMock(MediaType::class)
+        );
+
+        $folder = $this->createMock(Folder::class);
+        $folder
+            ->expects($this->once())
+            ->method('equals')
+            ->with($file->folder())
+            ->willReturn(false);
+        $this->assertSame($file, $file->moveTo($folder));
+        $this->assertSame($folder, $file->folder());
+        $this->assertCount(2, $file->recordedEvents());
+        $event = $file->recordedEvents()->last();
+        $this->assertInstanceOf(FileWasMovedToADifferentFolder::class, $event);
+        $this->assertSame($identity, $event->identity());
+        $this->assertSame($folder, $event->folder());
+
+        //verify nothing happens when renaming with the same name
+        $other = $this->createMock(Folder::class);
+        $other
+            ->expects($this->once())
+            ->method('equals')
+            ->with($folder)
+            ->willReturn(true);
+        $this->assertSame($file, $file->moveTo($other));
+        $this->assertSame($folder, $file->folder());
         $this->assertCount(2, $file->recordedEvents());
     }
 

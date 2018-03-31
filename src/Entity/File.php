@@ -12,6 +12,7 @@ use PersonalGalaxy\Files\{
     Event\FileWasRestored,
     Event\FileWasRemoved,
     Event\FileWasRenamed,
+    Event\FileWasMovedToADifferentFolder,
 };
 use Innmind\EventBus\{
     ContainsRecordedEventsInterface,
@@ -86,6 +87,18 @@ final class File implements ContainsRecordedEventsInterface
 
         $this->name = $name;
         $this->record(new FileWasRenamed($this->identity, $name));
+
+        return $this;
+    }
+
+    public function moveTo(Folder $folder): self
+    {
+        if ($folder->equals($this->folder)) {
+            return $this;
+        }
+
+        $this->folder = $folder;
+        $this->record(new FileWasMovedToADifferentFolder($this->identity, $folder));
 
         return $this;
     }
