@@ -14,6 +14,7 @@ use PersonalGalaxy\Files\{
     Event\FileWasRemoved,
     Event\FileWasRenamed,
     Event\FileWasMovedToADifferentFolder,
+    Exception\LogicException,
 };
 use Innmind\Filesystem\MediaType;
 use Innmind\EventBus\ContainsRecordedEventsInterface;
@@ -158,8 +159,17 @@ class FileTest extends TestCase
             $this->createMock(MediaType::class)
         );
 
+        try {
+            $file->remove();
+
+            $this->fail('it should throw');
+        } catch (LogicException $e) {
+            //pass
+        }
+
+        $file->trash();
         $this->assertNull($file->remove());
-        $this->assertCount(2, $file->recordedEvents());
+        $this->assertCount(3, $file->recordedEvents());
         $event = $file->recordedEvents()->last();
         $this->assertInstanceOf(FileWasRemoved::class, $event);
         $this->assertSame($identity, $event->identity());

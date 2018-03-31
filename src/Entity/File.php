@@ -13,6 +13,7 @@ use PersonalGalaxy\Files\{
     Event\FileWasRemoved,
     Event\FileWasRenamed,
     Event\FileWasMovedToADifferentFolder,
+    Exception\LogicException,
 };
 use Innmind\EventBus\{
     ContainsRecordedEventsInterface,
@@ -132,6 +133,10 @@ final class File implements ContainsRecordedEventsInterface
      */
     public function remove(): void
     {
+        if (!$this->trashed) {
+            throw new LogicException;
+        }
+
         $this->record(new FileWasRemoved($this->identity));
     }
 }

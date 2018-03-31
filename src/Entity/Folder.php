@@ -12,6 +12,7 @@ use PersonalGalaxy\Files\{
     Event\FolderWasRemoved,
     Event\FolderWasRenamed,
     Event\FolderWasMovedToADifferentParent,
+    Exception\LogicException,
 };
 use Innmind\EventBus\{
     ContainsRecordedEventsInterface,
@@ -121,6 +122,10 @@ final class Folder implements ContainsRecordedEventsInterface
      */
     public function remove(): void
     {
+        if (!$this->trashed) {
+            throw new LogicException;
+        }
+
         $this->record(new FolderWasRemoved($this->identity));
     }
 }

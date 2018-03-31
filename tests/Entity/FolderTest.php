@@ -13,6 +13,7 @@ use PersonalGalaxy\Files\{
     Event\FolderWasRestored,
     Event\FolderWasRemoved,
     Event\FolderWasMovedToADifferentParent,
+    Exception\LogicException,
 };
 use Innmind\EventBus\ContainsRecordedEventsInterface;
 use PHPUnit\Framework\TestCase;
@@ -148,8 +149,17 @@ class FolderTest extends TestCase
             $this->createMock(Identity::class)
         );
 
+        try {
+            $folder->remove();
+
+            $this->fail('it should throw');
+        } catch (LogicException $e) {
+            //pass
+        }
+
+        $folder->trash();
         $this->assertNull($folder->remove());
-        $this->assertCount(2, $folder->recordedEvents());
+        $this->assertCount(3, $folder->recordedEvents());
         $event = $folder->recordedEvents()->last();
         $this->assertInstanceOf(FolderWasRemoved::class, $event);
         $this->assertSame($identity, $event->identity());
