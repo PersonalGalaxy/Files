@@ -19,6 +19,7 @@ use Innmind\Filesystem\{
     Name\Name,
     MediaType,
 };
+use Innmind\Stream\Readable;
 use PHPUnit\Framework\TestCase;
 
 class AddFileHandlerTest extends TestCase
@@ -31,18 +32,26 @@ class AddFileHandlerTest extends TestCase
             $filesystem = $this->createMock(Adapter::class)
         );
         $command = new AddFile(
-            $this->createMock(Identity::class),
+            $identity = $this->createMock(Identity::class),
             $this->createMock(Folder::class),
             $file = $this->createMock(File::class)
         );
+        $identity
+            ->expects($this->once())
+            ->method('__toString')
+            ->willReturn('identity');
         $file
             ->expects($this->once())
             ->method('name')
             ->willReturn(new Name('foo'));
         $file
-            ->expects($this->once())
+            ->expects($this->exactly(2))
             ->method('mediaType')
             ->willReturn($mediaType = $this->createMock(MediaType::class));
+        $file
+            ->expects($this->once())
+            ->method('content')
+            ->willReturn($content = $this->createMock(Readable::class));
         $folders
             ->expects($this->once())
             ->method('has')
@@ -60,7 +69,11 @@ class AddFileHandlerTest extends TestCase
         $filesystem
             ->expects($this->once())
             ->method('add')
-            ->with($command->file());
+            ->with($this->callback(static function($file) use ($mediaType, $content): bool {
+                return (string) $file->name() === 'identity' &&
+                    $file->content() === $content &&
+                    $file->mediaType() === $mediaType;
+            }));
 
         $this->assertNull($handle($command));
     }
