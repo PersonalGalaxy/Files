@@ -11,7 +11,10 @@ use PersonalGalaxy\Files\{
     Repository\FolderRepository,
     Exception\FolderNotFound,
 };
-use Innmind\Filesystem\Adapter;
+use Innmind\Filesystem\{
+    Adapter,
+    File\File as RawFile,
+};
 
 final class AddFileHandler
 {
@@ -41,7 +44,11 @@ final class AddFileHandler
             $wished->folder(),
             $wished->file()->mediaType()
         );
-        $this->filesystem->add($wished->file());
+        $this->filesystem->add(new RawFile(
+            (string) $wished->identity(),
+            $wished->file()->content(),
+            $wished->file()->mediaType()
+        ));
         $this->files->add($file);
     }
 }
